@@ -34,8 +34,9 @@ abstract class AbstractCalculator {
   }
 
   FactorInfo factor(int idx) {
-    assert(idx >= 0 && idx < _factors.length);
-    return _factors[idx];
+    if(idx >= 0 && idx < _factors.length)
+      return _factors[idx];
+    return FactorInfo(id: '', name: '', value: 0, shortName: '', measure: '', format: 0);
   }
 
   int dataSize(){

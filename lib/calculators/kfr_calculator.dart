@@ -1,17 +1,33 @@
 
 import 'dart:math';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:process_control/calculators/abstract_calculator.dart';
 import 'package:process_control/repositories/process_params.dart';
 
-const double diapDistance = 0.247167;
+double _diapsKoef =  0.043599; //0.247167;  //
 
 class KfrCalculator extends AbstractCalculator{
   KfrCalculator(super.data);
   final List<double> _diag = [];
 
+  void getValues() async {
+    const storage = FlutterSecureStorage();
+    String? sdk = await storage.read(key: 'diaps_koef');
+    print('kfr.sdk : ------------------ $sdk');
+    if (sdk != null) {
+      _diapsKoef = double.tryParse(sdk)!;
+    }
+
+    _calculate();
+  }
+
   @override
   void calculate() {
+    getValues();
+  }
+
+  void _calculate(){
     for (int j = 0; j < 20; ++j) {
       _diag.add(0);
     }
@@ -40,7 +56,7 @@ class KfrCalculator extends AbstractCalculator{
 
       for (int j = 0; j < 20; ++j) {
 //        if (vct >= sqrt(j) * 0.043599 && vct < sqrt(j+1) * 0.043599){
-        if (vct >= sqrt(j) * diapDistance && vct < sqrt(j+1) * diapDistance){
+        if (vct >= sqrt(j) * _diapsKoef && vct < sqrt(j+1) * _diapsKoef){
           ++_diag[j];
         }
       }
@@ -50,8 +66,8 @@ class KfrCalculator extends AbstractCalculator{
     print('min = $min   max = $max');
     print('minX = $minX   maxX = $maxX   |   minY = $minY   maxY = $maxY  |  minZ = $minZ   maxZ = $maxZ');
     for (int j = 0; j < 20; ++j) {
-      var v1 = sqrt(j) * diapDistance;
-      var v2 = sqrt(j + 1) * diapDistance;
+      var v1 = sqrt(j) * _diapsKoef;
+      var v2 = sqrt(j + 1) * _diapsKoef;
       print('-- j = $j  v1 = $v1   v2 = $v2');
     }
     print('-------------------------');
@@ -73,7 +89,18 @@ class KfrCalculator extends AbstractCalculator{
 
     double kfr = summ / 20 * 100;
 
+    print('-------------------------');
+    print('kfr = $kfr');
+
+
     addFactor(FactorInfo(id: 'kfr', name: 'Качество функции равновесия', value: kfr, shortName: 'KFR', measure: '%', format: 2));
   }
 
+  static double diapDistance(){
+    return _diapsKoef;
+  }
+
+  static void setDiapDistance(double dd){
+    _diapsKoef = dd;
+  }
 }

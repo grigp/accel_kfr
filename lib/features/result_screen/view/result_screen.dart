@@ -39,7 +39,6 @@ class _ResultScreenState extends State<ResultScreen> {
         builder: (context, state) {
           if (state is DataLoaded) {
             var kfr = KfrCalculator(state.data);
-
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(20),
