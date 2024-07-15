@@ -21,3 +21,24 @@ class DataLoadingFailure extends ResultState {
 
   final Object? exception;
 }
+
+
+class CalculateState{}
+
+class CalculateInitial extends CalculateState{}
+
+class KfrCalculate extends CalculateState {
+  KfrCalculate({
+    required this.factors,
+  });
+
+  final KfrCalculator factors;
+}
+
+class KfrCalculateFailure extends CalculateState {
+  KfrCalculateFailure({
+    this.exception,
+  });
+
+  final Object? exception;
+}

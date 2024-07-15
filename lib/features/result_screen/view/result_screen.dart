@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:process_control/calculators/kfr_calculator.dart';
+import 'package:process_control/features/result_screen/bloc/kfr_calculator_bloc.dart';
 import 'package:process_control/features/result_screen/bloc/result_bloc.dart';
 import 'package:process_control/features/result_screen/painters/graph.dart';
 import 'package:process_control/repositories/process_params.dart';
@@ -20,6 +21,7 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen> {
   final _database = ResultBloc(GetIt.I<AbstractDatabaseRepository>());
+  final _kfrCalculator = KfrCalculatorBloc();
 
   @override
   void initState() {
@@ -34,40 +36,65 @@ class _ResultScreenState extends State<ResultScreen> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: BlocBuilder<ResultBloc, ResultState>(
-        bloc: _database,
-        builder: (context, state) {
-          if (state is DataLoaded) {
-            var kfr = KfrCalculator(state.data);
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    Text(
-                        'КФР = ${num.parse(kfr.factor(0).value.toStringAsFixed(0))} %',
-                        style: Theme.of(context).textTheme.headlineMedium),
-                    Expanded(
-                        child: Row(
+      body: Column(
+        children: [
+          BlocBuilder<ResultBloc, ResultState>(
+            bloc: _database,
+            builder: (context, state) {
+              if (state is DataLoaded) {
+                  _kfrCalculator.add(GetFactors(data: state.data));
+                // var kfr = KfrCalculator(state.data);
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
                       children: [
+                        BlocBuilder<KfrCalculatorBloc, CalculateState>(
+                            bloc: _kfrCalculator,
+                            builder: (context, state) {
+                              if (state is KfrCalculate) {
+                                return Text(
+                                    'КФР = ${num.parse(state.factors.factor(0).value.toStringAsFixed(0))} %',
+                                    style:
+                                    Theme.of(context).textTheme.headlineMedium);
+                              };
+                              return const CircularProgressIndicator();
+                            }),
+                        // Text(
+                        //     'КФР = ${num.parse(kfr.factor(0).value.toStringAsFixed(0))} %',
+                        //     style: Theme.of(context).textTheme.headlineMedium),
                         Expanded(
-                          child: SizedBox(
-                              height: double.infinity,
-                              child: CustomPaint(
-                                painter: Graph(state.data, state.params.freq),
-                              )),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: SizedBox(
+                                      height: double.infinity,
+                                      child: CustomPaint(
+                                        painter: Graph(state.data, state.params.freq),
+                                      )),
+                                )
+                              ],
+                            )
                         )
                       ],
-                    ))
-                  ],
-                ),
-              ),
-            );
-          }
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        },
+                    ),
+                  ),
+                );
+              }
+              // else
+              // if (state is KfrCalculate) {
+              //   return Text(
+              //       'КФР = ${num.parse(state.factors.factor(0).value.toStringAsFixed(0))} %',
+              //       style:
+              //       Theme.of(context).textTheme.headlineMedium);
+              // }
+              return const Center(
+                child:  CircularProgressIndicator(),
+              );
+            },
+          ),
+
+        ],
       ),
     );
   }

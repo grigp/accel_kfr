@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:process_control/calculators/kfr_calculator.dart';
 import 'package:process_control/repositories/database/abstract_database_repository.dart';
 import 'package:process_control/repositories/process_params.dart';
 
