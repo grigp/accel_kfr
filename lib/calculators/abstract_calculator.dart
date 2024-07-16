@@ -23,7 +23,7 @@ abstract class AbstractCalculator {
     calculate();
   }
 
-  void calculate();
+  Future<void> calculate();
 
   void addFactor(FactorInfo fi){
     _factors.add(fi);

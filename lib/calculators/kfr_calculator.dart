@@ -14,20 +14,15 @@ class KfrCalculator extends AbstractCalculator{
   void getValues() async {
     const storage = FlutterSecureStorage();
     String? sdk = await storage.read(key: 'diaps_koef');
-    print('kfr.sdk : ------------------ $sdk');
     if (sdk != null) {
       _diapsKoef = double.tryParse(sdk)!;
     }
-
-    _calculate();
   }
 
   @override
-  void calculate() {
+  Future<void> calculate() async {
     getValues();
-  }
 
-  void _calculate(){
     for (int j = 0; j < 20; ++j) {
       _diag.add(0);
     }
