@@ -6,6 +6,7 @@ import 'package:process_control/calculators/kfr_calculator.dart';
 import 'package:process_control/features/result_screen/bloc/kfr_calculator_bloc.dart';
 import 'package:process_control/features/result_screen/bloc/result_bloc.dart';
 import 'package:process_control/features/result_screen/painters/graph.dart';
+import 'package:process_control/features/result_screen/painters/histogram.dart';
 import 'package:process_control/repositories/process_params.dart';
 
 import '../../../repositories/database/abstract_database_repository.dart';
@@ -48,6 +49,14 @@ class _ResultScreenState extends State<ResultScreen> {
                     Text(
                         'КФР = ${num.parse(kfr.factor(0).value.toStringAsFixed(0))} %',
                         style: Theme.of(context).textTheme.headlineMedium),
+                    SizedBox(
+                      height: 150,
+                      width: double.infinity,
+                      child: CustomPaint(
+                        painter: Histogram(data:kfr.diagram(), max: 100),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
                     Expanded(
                         child: Row(
                       children: [

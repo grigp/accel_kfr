@@ -29,7 +29,15 @@ class ProcessControlBloc
 
     on<CalibrationEvent>((event, emit) async {
       try {
-        await process.calibrate();
+        await process.calibrate(event.func);
+      } catch (e) {
+
+      }
+    });
+
+    on<UpdateParamsEvent>((event, emit) async {
+      try {
+        await process.getSettings();
       } catch (e) {
 
       }

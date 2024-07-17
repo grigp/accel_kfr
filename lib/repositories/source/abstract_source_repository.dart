@@ -9,8 +9,9 @@ abstract class AbstractSourceRepository{
   Future<DataParams> init(Function func);
   Future<int> getCounter();
 
-  Future<void> calibrate();
+  Future<void> calibrate(Function func);
   Future<void> setMode(ChaningMode md);
+  Future<void> getSettings();
 
 
 }

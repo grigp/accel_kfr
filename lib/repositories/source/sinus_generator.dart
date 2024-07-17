@@ -53,7 +53,7 @@ class SinusGenerator  extends AbstractSourceRepository {
   }
 
   @override
-  Future<void> calibrate() async {
+  Future<void> calibrate(Function func) async {
 
   }
 
@@ -62,4 +62,8 @@ class SinusGenerator  extends AbstractSourceRepository {
     _mode = md;
   }
 
-}
+  @override
+  Future<void> getSettings() async {
+
+  }
+  }

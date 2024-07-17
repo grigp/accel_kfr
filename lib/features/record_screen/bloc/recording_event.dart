@@ -17,4 +17,11 @@ class SetModeEvent extends RecordingEvent {
   final ChaningMode mode;
 }
 
-class CalibrationEvent extends RecordingEvent {}
+class CalibrationEvent extends RecordingEvent {
+  CalibrationEvent({
+    required this.func
+  });
+  Function func;
+}
+
+class UpdateParamsEvent extends RecordingEvent {}

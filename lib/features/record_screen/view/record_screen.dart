@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:process_control/features/record_screen/bloc/recording_bloc.dart';
@@ -10,6 +11,8 @@ import 'package:process_control/repositories/source/abstract_source_repository.d
 import 'package:process_control/repositories/process_params.dart';
 
 import '../painters/bar_diagram_painter.dart';
+
+enum RecordStages { stgNone, stgWait1, stgCalibrating, stgWait2, stgRecording }
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key, required this.title});
@@ -33,6 +36,9 @@ class _RecordScreenState extends State<RecordScreen> {
   int _freq = 50;
   double _min = -10;
   double _max = -10;
+  int _timeWait = 4;
+  int _timeRec = 20;
+  RecordStages _stage = RecordStages.stgNone;
 
   List<DataBlock> _block = []; // Данные для записи
 
@@ -42,16 +48,26 @@ class _RecordScreenState extends State<RecordScreen> {
   @override
   void initState() {
     _pcBloc.add(InitSendDataEvent(func: getData));
+    getSettings();
     super.initState();
+  }
+
+  void getSettings() async {
+    const storage = FlutterSecureStorage();
+    String? stw = await storage.read(key: 'time_wait');
+    if (stw != null) {
+      _timeWait = int.tryParse(stw)!;
+    }
+    String? str = await storage.read(key: 'time_record');
+    if (str != null) {
+      _timeRec = int.tryParse(str)!;
+    }
+    _pcBloc.add(UpdateParamsEvent());
   }
 
   void getData(double ax, double ay, double az) async {
     ++_n;
     _block.add(DataBlock(ax: ax, ay: ay, az: az));
-    if (_isRecording) {
-      await _database.add(DataBlock(ax: ax, ay: ay, az: az));
-      ++_recCount;
-    }
 
     if (_n % (_freq / _screenRate) == 0) {
       setState(() {
@@ -59,6 +75,48 @@ class _RecordScreenState extends State<RecordScreen> {
         _ay = ay;
         _az = az;
       });
+    }
+
+    if (_isRecording) {
+      if (_stage == RecordStages.stgRecording) {
+        await _database.add(DataBlock(ax: ax, ay: ay, az: az));
+      }
+
+      ++_recCount;
+      if (_stage == RecordStages.stgWait1){
+        if (_recCount == _timeWait * _freq){
+          _recCount = 0;
+          _stage = RecordStages.stgCalibrating;
+          _pcBloc.add(CalibrationEvent(func: onEndCalibration));
+        }
+      }
+      else
+      if (_stage == RecordStages.stgWait2) {
+        if (_recCount == _timeWait * _freq) {
+          _recCount = 0;
+          _stage = RecordStages.stgRecording;
+        }
+      }
+      else
+      if (_stage == RecordStages.stgRecording) {
+        if (_recCount == _timeRec * _freq) {
+          _isRecording = false;
+          _recCount = 0;
+          _stage = RecordStages.stgNone;
+          await _database.setParams(_freq);
+          Navigator.of(context).pushNamed('/result');
+          setState(() {
+            _saveIcon = Icons.save_outlined;
+          });
+        }
+      }
+    }
+  }
+
+  void onEndCalibration() async {
+    if (_isRecording) {
+      _recCount = 0;
+      _stage = RecordStages.stgWait2;
     }
   }
 
@@ -75,11 +133,44 @@ class _RecordScreenState extends State<RecordScreen> {
 
     //! Остановили запись
     if (!_isRecording) {
+      _stage = RecordStages.stgNone;
       await _database.setParams(_freq);
       Navigator.of(context).pushNamed('/result');
     } else {
+      _stage = RecordStages.stgWait1;
       _database.clear();
     }
+  }
+
+  String getStageTime() {
+    if (_stage == RecordStages.stgCalibrating ||
+        _stage == RecordStages.stgRecording) {
+      return '${num.parse((_recCount / _freq).toStringAsFixed(1))} сек';
+    }
+    else
+    if (_stage == RecordStages.stgWait1 || _stage == RecordStages.stgWait2) {
+      return '${num.parse(
+          (_timeWait - (_recCount / _freq)).toStringAsFixed(1))} сек';
+    }
+    return '';
+  }
+
+  String getStageComment() {
+    if (_stage == RecordStages.stgWait1) {
+      return 'До калибровки';
+    }
+    else
+    if (_stage == RecordStages.stgCalibrating) {
+      return 'Калибровка';
+    }
+    else
+    if (_stage == RecordStages.stgWait2) {
+      return 'До записи';
+    }
+    if (_stage == RecordStages.stgRecording) {
+      return 'Запись $_timeRec сек';
+    }
+    return '';
   }
 
   @override
@@ -93,6 +184,8 @@ class _RecordScreenState extends State<RecordScreen> {
         bloc: _pcBloc,
         builder: (context, state) {
           if (state is ProcessGetFreq) {
+            String sTimer = getStageTime();
+            String sStage = getStageComment();
             _freq = state.freq;
             _min = state.min;
             _max = state.max;
@@ -152,10 +245,15 @@ class _RecordScreenState extends State<RecordScreen> {
                     ]),
                     if (_isRecording)
                       Center(
-                        child: Text(
-                            '${num.parse((_recCount / _freq).toStringAsFixed(1))} сек',
-                            style: Theme.of(context).textTheme.displayLarge),
-                      )
+                          child: Column(
+                        children: [
+                          const SizedBox(height: 200),
+                          Text(sStage,
+                              style: Theme.of(context).textTheme.displaySmall),
+                          Text(sTimer,
+                              style: Theme.of(context).textTheme.displayLarge),
+                        ],
+                      ))
                   ],
                 ),
               ),
@@ -182,7 +280,7 @@ class _RecordScreenState extends State<RecordScreen> {
           ),
           FloatingActionButton(
             onPressed: () {
-              _pcBloc.add(CalibrationEvent());
+              _pcBloc.add(CalibrationEvent(func: onEndCalibration));
             },
             heroTag: 'Calibrate',
             tooltip: 'Калибровка',

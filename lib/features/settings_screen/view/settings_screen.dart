@@ -27,12 +27,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void getValues() async {
     const storage =  FlutterSecureStorage();
     String? sdk = await storage.read(key: 'diaps_koef');
-    print('sdk : ------------------ $sdk');
     if (sdk != null) {
       _diapsKoef = double.tryParse(sdk)!;
     }
+    String? stw = await storage.read(key: 'time_wait');
+    if (stw != null) {
+      _timeWait = int.tryParse(stw)!;
+    }
+    String? stc = await storage.read(key: 'time_calibration');
+    if (stc != null) {
+      _timeCalibr = int.tryParse(stc)!;
+    }
+    String? str = await storage.read(key: 'time_record');
+    if (str != null) {
+      _timeRec = int.tryParse(str)!;
+    }
 
-//    _diapsKoef = KfrCalculator.diapDistance();
     _textDiapsKoef = TextEditingController(text: _diapsKoef.toString());
     _textTimeWait = TextEditingController(text: _timeWait.toString());
     _textTimeCalibr = TextEditingController(text: _timeCalibr.toString());
@@ -45,9 +55,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void saveValues() async {
     const storage =  FlutterSecureStorage();
     var s = _diapsKoef.toString();
-//    await storage.delete(key: 'diaps_koef');
     await storage.write(key: 'diaps_koef', value: s);
     KfrCalculator.setDiapDistance(_diapsKoef);
+    s = _timeWait.toString();
+    await storage.write(key: 'time_wait', value: s);
+    s = _timeCalibr.toString();
+    await storage.write(key: 'time_calibration', value: s);
+    s = _timeRec.toString();
+    await storage.write(key: 'time_record', value: s);
+    Navigator.of(context).pushNamed('/');
   }
 
   @override
@@ -173,7 +189,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ElevatedButton(
                     onPressed: () {
                       saveValues();
-                      Navigator.of(context).pushNamed('/');
                     },
                     child: Text('Сохранить',
                         style: Theme.of(context).textTheme.headlineSmall),

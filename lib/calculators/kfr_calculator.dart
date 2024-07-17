@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:process_control/calculators/abstract_calculator.dart';
-import 'package:process_control/repositories/process_params.dart';
 
 double _diapsKoef =  0.043599; //0.247167;  //
 
@@ -71,19 +70,19 @@ class KfrCalculator extends AbstractCalculator{
     double s = 0;
     for (int j = 1; j < 20; ++j) {
       _diag[j] += _diag[j-1];
-      var v = _diag[j];
-      print('-- j = $j   val = $v');
       s += _diag[j];
     }
-    print('summ = $s');
     double summ = 0;
     for (int j = 0; j < 20; ++j) {
-      _diag[j] = _diag[j] / (n ?? 1);
+      _diag[j] = _diag[j] / n * 100;
+      print('-- j = $j   val = ${_diag[j]}');
       summ += _diag[j];
     }
 
-    double kfr = summ / 20 * 100;
+    double kfr = summ / 20;
 
+    print('-------------------------');
+    print('summ = $s   n = $n');
     print('-------------------------');
     print('kfr = $kfr');
 
@@ -97,5 +96,13 @@ class KfrCalculator extends AbstractCalculator{
 
   static void setDiapDistance(double dd){
     _diapsKoef = dd;
+  }
+
+  List<double> diagram(){
+    List<double> retval = [];
+    for(int i = 0; i < 20; ++i) {
+      retval.add(_diag[i]);
+    }
+    return retval;
   }
 }

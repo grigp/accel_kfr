@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:process_control/repositories/process_params.dart';
 
 const double LeftBorder = 15;
-const double RightBorder = 1;
+const double RightBorder = 3;
 const double TopBorder = 5;
 const double BottomBorder = 5;
 
@@ -63,8 +63,8 @@ class Graph extends CustomPainter {
     double step = (size.width - LeftBorder - RightBorder) / values.length.toDouble();
 
     for (int i = 0; i < values.length - 1; ++i){
-      double x1 = i * step;
-      double x2 = (i + 1) * step;
+      double x1 = LeftBorder + i * step;
+      double x2 = LeftBorder + (i + 1) * step;
 
       var p1 = Offset(x1, zoneHeight - BottomBorder - (values[i].ax-min).toDouble() * prop);
       var p2 = Offset(x2, zoneHeight - BottomBorder - (values[i+1].ax-min).toDouble() * prop);
