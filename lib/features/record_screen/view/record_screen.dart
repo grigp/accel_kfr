@@ -267,7 +267,7 @@ class _RecordScreenState extends State<RecordScreen> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          FloatingActionButton(
+          if (!_isRecording) FloatingActionButton(
             onPressed: () {
               Navigator.of(context).pushNamed('/settings');
             },
@@ -278,7 +278,7 @@ class _RecordScreenState extends State<RecordScreen> {
           const SizedBox(
             width: 60,
           ),
-          FloatingActionButton(
+          if (!_isRecording) FloatingActionButton(
             onPressed: () {
               _pcBloc.add(CalibrationEvent(func: onEndCalibration));
             },
