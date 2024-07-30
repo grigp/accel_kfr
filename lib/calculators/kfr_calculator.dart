@@ -3,8 +3,10 @@ import 'dart:math';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:process_control/calculators/abstract_calculator.dart';
+import 'package:process_control/calculators/calculate_defines.dart';
 
 double _diapsKoef =  0.043599; //0.247167;  //
+CalculateDirectionMode _cdm = CalculateDirectionMode.cdm3D;
 
 class KfrCalculator extends AbstractCalculator{
   KfrCalculator(super.data);
@@ -15,6 +17,10 @@ class KfrCalculator extends AbstractCalculator{
     String? sdk = await storage.read(key: 'diaps_koef');
     if (sdk != null) {
       _diapsKoef = double.tryParse(sdk)!;
+    }
+    String? stcdm = await storage.read(key: 'calculate_direction_mode');
+    if (stcdm != null) {
+      _cdm = CalculateDirectionMode.values[int.tryParse(stcdm)!];
     }
   }
 
@@ -38,9 +44,19 @@ class KfrCalculator extends AbstractCalculator{
     double maxZ = 0;
     for (int i = 0; i < n; ++i){
       var val = dataValue(i);
-      double vct = sqrt(pow(val.ax, 2) + pow(val.ay, 2) + pow(val.az, 2));
+      double vct = 0;
+      if (_cdm == CalculateDirectionMode.cdm3D) {
+        vct = sqrt(pow(val.ax, 2) + pow(val.ay, 2) + pow(val.az, 2));
+      } else
+      if (_cdm == CalculateDirectionMode.cdmVertical) {
+        vct = sqrt(pow(val.ax, 2) + pow(val.az, 2));
+      } else
+      if (_cdm == CalculateDirectionMode.cdmHorizontal) {
+        vct = sqrt(pow(val.ax, 2) + pow(val.ay, 2));
+      }
       if (vct < min) {min = vct;}
       if (vct > max) {max = vct;}
+
       if (val.ax.abs() < minX) {minX = val.ax.abs();}
       if (val.ax.abs() > maxX) {maxX = val.ax.abs();}
       if (val.ay.abs() < minY) {minY = val.ay.abs();}

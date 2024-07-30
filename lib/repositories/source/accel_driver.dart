@@ -10,9 +10,9 @@ class AccelDriver extends AbstractSourceRepository {
   double _ax = 0;
   double _ay = 0;
   double _az = 0;
-  // double _gx = 0;
-  // double _gy = 0;
-  // double _gz = 0;
+  double _gx = 0;
+  double _gy = 0;
+  double _gz = 0;
   double _midX = 0;
   double _midY = 0;
   double _midZ = 0;
@@ -26,6 +26,9 @@ class AccelDriver extends AbstractSourceRepository {
   late Function _endCalibration;
 
   List<DataBlock> _dataCalibrate = [];
+  List<DataBlock> _dataFilter = [];
+  int _fc = 15;
+  List<double> _koefs = [0.07, 0.15, 0.25, 0.37, 0.5, 0.75, 0.9, 1, 0.9, 0.75, 0.5, 0.37, 0.25, 0.15, 0.07];
 
   AccelDriver(){
     getSettings();
@@ -34,7 +37,24 @@ class AccelDriver extends AbstractSourceRepository {
       _ax = event.x - _midX;
       _ay = event.y - _midY;
       _az = event.z - _midZ;
-      _sendData(_ax, _ay, _az);
+
+      ///< Фильтрация
+      _dataFilter.add(DataBlock(ax: _ax, ay: _ay, az: _az));
+      if (_dataFilter.length > _fc) {
+        _dataFilter.removeAt(0);
+      }
+      DataBlock cur = DataBlock(ax: _ax, ay: _ay, az: _az);
+      if (_dataFilter.length >= _fc) {
+        for (int i = 0; i < _dataFilter.length; ++i) {
+          cur.ax = cur.ax + _koefs[i] * _dataFilter[i].ax;
+          cur.ay = cur.ay + _koefs[i] * _dataFilter[i].ay;
+          cur.az = cur.az + _koefs[i] * _dataFilter[i].az;
+        }
+        cur.ax /= _fc;
+        cur.ay /= _fc;
+        cur.az /= _fc;
+      }
+      _sendData(cur.ax, cur.ay, cur.az);
 
 
       if (_isCalibratng){
@@ -56,12 +76,12 @@ class AccelDriver extends AbstractSourceRepository {
       }
     });
 
-    // gyroscopeEventStream(samplingPeriod: sensorInterval).listen((GyroscopeEvent event){
-    //   _gx = event.x;
-    //   _gy = event.y;
-    //   _gz = event.z;
-    //   // _func(_gx, _gy, _gz);
-    // });
+    gyroscopeEventStream(samplingPeriod: sensorInterval).listen((GyroscopeEvent event){
+      _gx = _gx + event.x;
+      _gy = _gy + event.y;
+      _gz = _gz + event.z;
+      // _func(_gx, _gy, _gz);
+    });
   }
 
   @override
