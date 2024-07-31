@@ -25,12 +25,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _timeWait = 4;
   int _timeCalibr = 1;
   int _timeRec = 20;
+
   ///< Режим расчета и ориентации устройства
   ///< cdm3D - трехмерный расчет (свободное расположение устройства),
   ///< cdmVertical - X и Z (вертикальное расположение устройства),
   ///< cdmHorizontal - X и Y (горизонтальное расположение устройства)
   CalculateDirectionMode _cdm = CalculateDirectionMode.cdm3D;
-
 
   void getValues() async {
     const storage = FlutterSecureStorage();
@@ -107,125 +107,148 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              Text('Коэффициент диапазонов',
-                  style: Theme.of(context).textTheme.headlineSmall),
-              const SizedBox(
-                width: 20,
-              ),
-              if (_isReady)
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    controller: _textDiapsKoef,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    inputFormatters: [
-                      NumberTextInputFormatter(
-                        integerDigits: 8,
-                        decimalDigits: 6,
-                        decimalSeparator: '.',
-                        allowNegative: false,
-                      )
-                    ],
-                    onChanged: (String value) {
-                      _diapsKoef = double.tryParse(value)!;
-                    },
-                    keyboardType: TextInputType.number,
+              Row(
+                children: [
+                  const Text(
+                    'Коэффициент диапазонов',
+                    style: TextStyle(fontSize: 18),
                   ),
-                ),
-              const SizedBox(height: 20),
-              Text(
-                'Время ожидания, сек',
-                style: Theme.of(context).textTheme.headlineSmall,
+                  const Spacer(),
+                  if (_isReady)
+                    SizedBox(
+                      width: 100,
+                      child: TextField(
+                        controller: _textDiapsKoef,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                        inputFormatters: [
+                          NumberTextInputFormatter(
+                            integerDigits: 8,
+                            decimalDigits: 6,
+                            decimalSeparator: '.',
+                            allowNegative: false,
+                          )
+                        ],
+                        onChanged: (String value) {
+                          _diapsKoef = double.tryParse(value)!;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                ],
               ),
-              if (_isReady)
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    controller: _textTimeWait,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    inputFormatters: [
-                      NumberTextInputFormatter(
-                        integerDigits: 2,
-                        decimalDigits: 0,
-                        maxValue: '20',
-                        allowNegative: false,
-                      )
-                    ],
-                    onChanged: (String value) {
-                      _timeWait = int.tryParse(value)!;
-                    },
-                    keyboardType: TextInputType.number,
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Text(
+                    'Время ожидания, сек',
+                    style: TextStyle(fontSize: 18),
                   ),
-                ),
-              const SizedBox(height: 20),
-              Text(
-                'Время калибровки, сек',
-                style: Theme.of(context).textTheme.headlineSmall,
+                  const Spacer(),
+                  if (_isReady)
+                    SizedBox(
+                      width: 100,
+                      child: TextField(
+                        controller: _textTimeWait,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                        inputFormatters: [
+                          NumberTextInputFormatter(
+                            integerDigits: 2,
+                            decimalDigits: 0,
+                            maxValue: '20',
+                            allowNegative: false,
+                          )
+                        ],
+                        onChanged: (String value) {
+                          _timeWait = int.tryParse(value)!;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                ],
               ),
-              if (_isReady)
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    controller: _textTimeCalibr,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    inputFormatters: [
-                      NumberTextInputFormatter(
-                        integerDigits: 2,
-                        decimalDigits: 0,
-                        maxValue: '3',
-                        allowNegative: false,
-                      )
-                    ],
-                    onChanged: (String value) {
-                      _timeCalibr = int.tryParse(value)!;
-                    },
-                    keyboardType: TextInputType.number,
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Text(
+                    'Время калибровки, сек',
+                    style: TextStyle(fontSize: 18),
                   ),
-                ),
-              const SizedBox(height: 20),
-              Text(
-                'Время записи, сек',
-                style: Theme.of(context).textTheme.headlineSmall,
+                  const Spacer(),
+                  if (_isReady)
+                    SizedBox(
+                      width: 100,
+                      child: TextField(
+                        controller: _textTimeCalibr,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                        inputFormatters: [
+                          NumberTextInputFormatter(
+                            integerDigits: 2,
+                            decimalDigits: 0,
+                            maxValue: '3',
+                            allowNegative: false,
+                          )
+                        ],
+                        onChanged: (String value) {
+                          _timeCalibr = int.tryParse(value)!;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                ],
               ),
-              if (_isReady)
-                SizedBox(
-                  width: 100,
-                  child: TextField(
-                    controller: _textTimeRec,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                    inputFormatters: [
-                      NumberTextInputFormatter(
-                        integerDigits: 2,
-                        decimalDigits: 0,
-                        maxValue: '60',
-                        allowNegative: false,
-                      )
-                    ],
-                    onChanged: (String value) {
-                      _timeRec = int.tryParse(value)!;
-                    },
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
               const SizedBox(height: 20),
+              Row(
+                children: [
+                  const Text(
+                    'Время записи, сек',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const Spacer(),
+                  if (_isReady)
+                    SizedBox(
+                      width: 100,
+                      child: TextField(
+                        controller: _textTimeRec,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                        inputFormatters: [
+                          NumberTextInputFormatter(
+                            integerDigits: 2,
+                            decimalDigits: 0,
+                            maxValue: '60',
+                            allowNegative: false,
+                          )
+                        ],
+                        onChanged: (String value) {
+                          _timeRec = int.tryParse(value)!;
+                        },
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
               ///< Режим расчета и ориентации устройства
               ///< cdm3D - трехмерный расчет (свободное расположение устройства),
               ///< cdmVertical - X и Z (вертикальное расположение устройства),
               ///< cdmHorizontal - X и Y (горизонтальное расположение устройства)
-              Text(
+              const Text(
                 'Режим расчета',
-                style: Theme.of(context).textTheme.headlineSmall,
+                style: TextStyle(fontSize: 18),
               ),
               Column(
                 children: <Widget>[
                   ListTile(
-                    title: Text('Трехкоординатный',
-                      style: Theme.of(context).textTheme.headlineSmall,),
-                    subtitle: const Text('трехмерный расчет (свободное расположение устройства)'),
+                    title: const Text(
+                      'Трехкоординатный',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    subtitle: const Text(
+                        'трехмерный расчет (свободное расположение устройства)'),
                     leading: Radio<CalculateDirectionMode>(
                       value: CalculateDirectionMode.cdm3D,
                       groupValue: _cdm,
-                      onChanged: (CalculateDirectionMode? value){
+                      onChanged: (CalculateDirectionMode? value) {
                         setState(() {
                           _cdm = value!;
                         });
@@ -233,12 +256,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   ListTile(
-                    title: const Text('X и Z'),
-                    subtitle: const Text('вертикальное расположение устройства'),
+                    title: const Text(
+                      'X и Z',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    subtitle:
+                        const Text('вертикальное расположение устройства'),
                     leading: Radio<CalculateDirectionMode>(
                       value: CalculateDirectionMode.cdmVertical,
                       groupValue: _cdm,
-                      onChanged: (CalculateDirectionMode? value){
+                      onChanged: (CalculateDirectionMode? value) {
                         setState(() {
                           _cdm = value!;
                         });
@@ -246,12 +273,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   ListTile(
-                    title: const Text('X и Y'),
-                    subtitle: const Text('горизонтальное расположение устройства'),
+                    title: const Text(
+                      'X и Y',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                    subtitle:
+                        const Text('горизонтальное расположение устройства'),
                     leading: Radio<CalculateDirectionMode>(
                       value: CalculateDirectionMode.cdmHorizontal,
                       groupValue: _cdm,
-                      onChanged: (CalculateDirectionMode? value){
+                      onChanged: (CalculateDirectionMode? value) {
                         setState(() {
                           _cdm = value!;
                         });
