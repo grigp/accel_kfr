@@ -21,14 +21,15 @@ class AccelDriver extends AbstractSourceRepository {
   final double _max = diap;
   bool _isCalibratng = false;
   int _timeCalibration = 1;
+  bool _isFilter = true;
 
   late Function _sendData;
   late Function _endCalibration;
 
-  List<DataBlock> _dataCalibrate = [];
-  List<DataBlock> _dataFilter = [];
-  int _fc = 15;
-  List<double> _koefs = [0.07, 0.15, 0.25, 0.37, 0.5, 0.75, 0.9, 1, 0.9, 0.75, 0.5, 0.37, 0.25, 0.15, 0.07];
+  final List<DataBlock> _dataCalibrate = [];
+  final List<DataBlock> _dataFilter = [];
+  final int _fc = 15;
+  final List<double> _koefs = [0.08, 0.23, 0.5, 0.8, 1.1, 1.4, 1.9, 2, 1.9, 1.4, 1.1, 0.8, 0.5, 0.23, 0.08];
 
   AccelDriver(){
     getSettings();
@@ -39,20 +40,24 @@ class AccelDriver extends AbstractSourceRepository {
       _az = event.z - _midZ;
 
       ///< Фильтрация
-      _dataFilter.add(DataBlock(ax: _ax, ay: _ay, az: _az));
-      if (_dataFilter.length > _fc) {
-        _dataFilter.removeAt(0);
+      if (_isFilter) {
+        _dataFilter.add(DataBlock(ax: _ax, ay: _ay, az: _az));
+        if (_dataFilter.length > _fc) {
+          _dataFilter.removeAt(0);
+        }
       }
       DataBlock cur = DataBlock(ax: _ax, ay: _ay, az: _az);
-      if (_dataFilter.length >= _fc) {
-        for (int i = 0; i < _dataFilter.length; ++i) {
-          cur.ax = cur.ax + _koefs[i] * _dataFilter[i].ax;
-          cur.ay = cur.ay + _koefs[i] * _dataFilter[i].ay;
-          cur.az = cur.az + _koefs[i] * _dataFilter[i].az;
+      if (_isFilter) {
+        if (_dataFilter.length >= _fc) {
+          for (int i = 0; i < _dataFilter.length; ++i) {
+            cur.ax = cur.ax + _koefs[i] * _dataFilter[i].ax;
+            cur.ay = cur.ay + _koefs[i] * _dataFilter[i].ay;
+            cur.az = cur.az + _koefs[i] * _dataFilter[i].az;
+          }
+          cur.ax /= _fc;
+          cur.ay /= _fc;
+          cur.az /= _fc;
         }
-        cur.ax /= _fc;
-        cur.ay /= _fc;
-        cur.az /= _fc;
       }
       _sendData(cur.ax, cur.ay, cur.az);
 
@@ -115,6 +120,15 @@ class AccelDriver extends AbstractSourceRepository {
     String? stc = await storage.read(key: 'time_calibration');
     if (stc != null) {
       _timeCalibration = int.tryParse(stc)!;
+    }
+
+    String? stf = await storage.read(key: 'filtration');
+    if (stf != null) {
+      if (stf == "1") {
+        _isFilter = true;
+      } else {
+        _isFilter = false;
+      }
     }
   }
 

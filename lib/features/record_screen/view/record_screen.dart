@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -92,7 +93,8 @@ class _RecordScreenState extends State<RecordScreen> {
       }
       else
       if (_stage == RecordStages.stgWait2) {
-        if (_recCount == _timeWait * _freq) {
+//        if (_recCount == _timeWait * _freq) {
+        if (_recCount == 1 * _freq) {
           _recCount = 0;
           _stage = RecordStages.stgRecording;
         }
@@ -105,6 +107,10 @@ class _RecordScreenState extends State<RecordScreen> {
           _stage = RecordStages.stgNone;
           await _database.setParams(_freq);
           Navigator.of(context).pushNamed('/result');
+          AssetsAudioPlayer.newPlayer().open(
+            Audio('sounds/ok.mp3'),
+            autoStart: true,
+          );
           setState(() {
             _saveIcon = Icons.save_outlined;
           });
@@ -148,9 +154,13 @@ class _RecordScreenState extends State<RecordScreen> {
       return '${num.parse((_recCount / _freq).toStringAsFixed(1))} сек';
     }
     else
-    if (_stage == RecordStages.stgWait1 || _stage == RecordStages.stgWait2) {
+    if (_stage == RecordStages.stgWait1) {
       return '${num.parse(
           (_timeWait - (_recCount / _freq)).toStringAsFixed(1))} сек';
+    }
+    if (_stage == RecordStages.stgWait2) {
+      return '${num.parse(
+          (1 - (_recCount / _freq)).toStringAsFixed(1))} сек';
     }
     return '';
   }

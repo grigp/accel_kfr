@@ -25,6 +25,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _timeWait = 4;
   int _timeCalibr = 1;
   int _timeRec = 20;
+  bool _isFilter = true;
 
   ///< Режим расчета и ориентации устройства
   ///< cdm3D - трехмерный расчет (свободное расположение устройства),
@@ -54,7 +55,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (stcdm != null) {
       _cdm = CalculateDirectionMode.values[int.tryParse(stcdm)!];
     }
-
+    String? stf = await storage.read(key: 'filtration');
+    if (stf != null) {
+      if (stf == "1") {
+        _isFilter = true;
+      } else {
+        _isFilter = false;
+      }
+    }
     _textDiapsKoef = TextEditingController(text: _diapsKoef.toString());
     _textTimeWait = TextEditingController(text: _timeWait.toString());
     _textTimeCalibr = TextEditingController(text: _timeCalibr.toString());
@@ -77,6 +85,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await storage.write(key: 'time_record', value: s);
     s = _cdm.index.toString();
     await storage.write(key: 'calculate_direction_mode', value: s);
+    if (_isFilter) {
+      s = '1';
+    } else {
+      s = '0';
+    }
+    await storage.write(key: 'filtration', value: s);
     Navigator.of(context).pushNamed('/');
   }
 
@@ -110,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 children: [
                   const Text(
-                    'Коэффициент диапазонов',
+                    'Коэф-т диапазонов',
                     style: TextStyle(fontSize: 18),
                   ),
                   const Spacer(),
@@ -136,11 +150,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                 ],
               ),
-              const SizedBox(height: 10),
+//              const SizedBox(height: 10),
               Row(
                 children: [
                   const Text(
-                    'Время ожидания, сек',
+                    'Время ожидания, с',
                     style: TextStyle(fontSize: 18),
                   ),
                   const Spacer(),
@@ -166,11 +180,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                 ],
               ),
-              const SizedBox(height: 10),
+//              const SizedBox(height: 10),
               Row(
                 children: [
                   const Text(
-                    'Время калибровки, сек',
+                    'Время калибровки, с',
                     style: TextStyle(fontSize: 18),
                   ),
                   const Spacer(),
@@ -184,7 +198,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           NumberTextInputFormatter(
                             integerDigits: 2,
                             decimalDigits: 0,
-                            maxValue: '3',
+                            maxValue: '10',
                             allowNegative: false,
                           )
                         ],
@@ -196,11 +210,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                 ],
               ),
-              const SizedBox(height: 20),
+//              const SizedBox(height: 10),
               Row(
                 children: [
                   const Text(
-                    'Время записи, сек',
+                    'Время записи, с',
                     style: TextStyle(fontSize: 18),
                   ),
                   const Spacer(),
@@ -226,7 +240,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                 ],
               ),
-              const SizedBox(height: 20),
+//              const SizedBox(height: 10),
+              Row(
+                children: [
+                  const Text(
+                    'Фильтрация',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const Spacer(),
+                  if (_isReady)
+                    Switch(
+                      value: _isFilter,
+                      onChanged: (bool value){
+                        setState(() {
+                          _isFilter = value;
+                        });
+                      },
+                    ),
+                ],
+              ),
 
               ///< Режим расчета и ориентации устройства
               ///< cdm3D - трехмерный расчет (свободное расположение устройства),
@@ -240,11 +272,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: <Widget>[
                   ListTile(
                     title: const Text(
-                      'Трехкоординатный',
+                      'XYZ (произвольно)',
                       style: TextStyle(fontSize: 18),
                     ),
-                    subtitle: const Text(
-                        'трехмерный расчет (свободное расположение устройства)'),
+                    // subtitle: const Text(
+                    //     'трехмерный расчет (свободное расположение устройства)'),
                     leading: Radio<CalculateDirectionMode>(
                       value: CalculateDirectionMode.cdm3D,
                       groupValue: _cdm,
@@ -257,11 +289,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   ListTile(
                     title: const Text(
-                      'X и Z',
+                      'XZ (вертикально)',
                       style: TextStyle(fontSize: 18),
                     ),
-                    subtitle:
-                        const Text('вертикальное расположение устройства'),
+                    // subtitle:
+                    //     const Text('вертикальное расположение устройства'),
                     leading: Radio<CalculateDirectionMode>(
                       value: CalculateDirectionMode.cdmVertical,
                       groupValue: _cdm,
@@ -274,11 +306,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   ListTile(
                     title: const Text(
-                      'X и Y',
+                      'XY (горизонтально)',
                       style: TextStyle(fontSize: 18),
                     ),
-                    subtitle:
-                        const Text('горизонтальное расположение устройства'),
+                    // subtitle:
+                    //     const Text('горизонтальное расположение устройства'),
                     leading: Radio<CalculateDirectionMode>(
                       value: CalculateDirectionMode.cdmHorizontal,
                       groupValue: _cdm,
@@ -311,6 +343,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               )
             ],
           ),
-        ));
+        ),
+    );
   }
 }
