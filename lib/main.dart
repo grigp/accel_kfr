@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:process_control/process_control_app.dart';
 import 'package:process_control/repositories/database/abstract_database_repository.dart';
@@ -16,5 +17,12 @@ void main() {
           () => Database()
   );
 
-  runApp(const ProcessControlApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+    [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown],
+  ).then((_) {
+    runApp(const ProcessControlApp());
+  });
+
+
 }

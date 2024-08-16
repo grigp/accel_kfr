@@ -13,9 +13,15 @@ class AccelDriver extends AbstractSourceRepository {
   double _gx = 0;
   double _gy = 0;
   double _gz = 0;
-  double _midX = 0;
-  double _midY = 0;
-  double _midZ = 0;
+  double _gsx = 0;
+  double _gsy = 0;
+  double _gsz = 0;
+  double _midAX = 0;
+  double _midAY = 0;
+  double _midAZ = 0;
+  double _midGX = 0;
+  double _midGY = 0;
+  double _midGZ = 0;
   final int _freq = 50;
   final double _min = -diap;
   final double _max = diap;
@@ -35,45 +41,63 @@ class AccelDriver extends AbstractSourceRepository {
     getSettings();
     Duration sensorInterval = SensorInterval.gameInterval;
     accelerometerEventStream(samplingPeriod: sensorInterval).listen((AccelerometerEvent event){
-      _ax = event.x - _midX;
-      _ay = event.y - _midY;
-      _az = event.z - _midZ;
+      _ax = event.x - _midAX;
+      _ay = event.y - _midAY;
+      _az = event.z - _midAZ;
 
       ///< Фильтрация
       if (_isFilter) {
-        _dataFilter.add(DataBlock(ax: _ax, ay: _ay, az: _az));
+        _dataFilter.add(DataBlock(ax: _ax, ay: _ay, az: _az,
+            gx: _gsx, gy: _gsy, gz: _gsz));
         if (_dataFilter.length > _fc) {
           _dataFilter.removeAt(0);
         }
       }
-      DataBlock cur = DataBlock(ax: _ax, ay: _ay, az: _az);
+      DataBlock cur = DataBlock(ax: _ax, ay: _ay, az: _az,
+          gx: _gx, gy: _gy, gz: _gz);
       if (_isFilter) {
         if (_dataFilter.length >= _fc) {
           for (int i = 0; i < _dataFilter.length; ++i) {
             cur.ax = cur.ax + _koefs[i] * _dataFilter[i].ax;
             cur.ay = cur.ay + _koefs[i] * _dataFilter[i].ay;
             cur.az = cur.az + _koefs[i] * _dataFilter[i].az;
+            cur.gx = cur.gx + _koefs[i] * _dataFilter[i].gx;
+            cur.gy = cur.gy + _koefs[i] * _dataFilter[i].gy;
+            cur.gz = cur.gz + _koefs[i] * _dataFilter[i].gz;
           }
           cur.ax /= _fc;
           cur.ay /= _fc;
           cur.az /= _fc;
+          cur.gx /= _fc;
+          cur.gy /= _fc;
+          cur.gz /= _fc;
         }
       }
-      _sendData(cur.ax, cur.ay, cur.az);
+      _sendData(cur.ax, cur.ay, cur.az, cur.gx, cur.gy, cur.gz);
 
 
       if (_isCalibratng){
-        _dataCalibrate.add(DataBlock(ax: _ax, ay: _ay, az: _az));
+        _dataCalibrate.add(DataBlock(ax: _ax, ay: _ay, az: _az,
+          gx: _gx, gy: _gy, gz: _gz));
         if (_dataCalibrate.length >= _timeCalibration * _freq){
           _isCalibratng = false;
           for (int i = 0; i < _dataCalibrate.length; ++i){
-            _midX += _dataCalibrate[i].ax;
-            _midY += _dataCalibrate[i].ay;
-            _midZ += _dataCalibrate[i].az;
+            _midAX += _dataCalibrate[i].ax;
+            _midAY += _dataCalibrate[i].ay;
+            _midAZ += _dataCalibrate[i].az;
+            _midGX += _dataCalibrate[i].gx;
+            _midGY += _dataCalibrate[i].gy;
+            _midGZ += _dataCalibrate[i].gz;
           }
-          _midX /= _dataCalibrate.length;
-          _midY /= _dataCalibrate.length;
-          _midZ /= _dataCalibrate.length;
+          _midAX /= _dataCalibrate.length;
+          _midAY /= _dataCalibrate.length;
+          _midAZ /= _dataCalibrate.length;
+          _midGX /= _dataCalibrate.length;
+          _midGY /= _dataCalibrate.length;
+          _midGZ /= _dataCalibrate.length;
+          _gsx = 0;
+          _gsy = 0;
+          _gsz = 0;
 
           _dataCalibrate.clear();
           _endCalibration();
@@ -82,9 +106,12 @@ class AccelDriver extends AbstractSourceRepository {
     });
 
     gyroscopeEventStream(samplingPeriod: sensorInterval).listen((GyroscopeEvent event){
-      _gx = _gx + event.x;
-      _gy = _gy + event.y;
-      _gz = _gz + event.z;
+      _gx = event.x - _midGX;
+      _gy = event.y - _midGY;
+      _gz = event.z - _midGZ;
+      _gsx += _gx;
+      _gsy += _gy;
+      _gsz += _gz;
       // _func(_gx, _gy, _gz);
     });
   }
@@ -104,9 +131,15 @@ class AccelDriver extends AbstractSourceRepository {
   @override
   Future<void> calibrate(Function func) async {
     _endCalibration = func;
-    _midX = 0;
-    _midY = 0;
-    _midZ = 0;
+    _midAX = 0;
+    _midAY = 0;
+    _midAZ = 0;
+    _midGX = 0;
+    _midGY = 0;
+    _midGZ = 0;
+    _gsx = 0;
+    _gsy = 0;
+    _gsz = 0;
     _isCalibratng = true;
   }
 

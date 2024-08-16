@@ -31,6 +31,9 @@ class _RecordScreenState extends State<RecordScreen> {
   double _ax = 0;
   double _ay = 0;
   double _az = 0;
+  double _gx = 0;
+  double _gy = 0;
+  double _gz = 0;
   int _n = 0;
   int _recCount = 0;
   final int _screenRate = 20;
@@ -66,41 +69,42 @@ class _RecordScreenState extends State<RecordScreen> {
     _pcBloc.add(UpdateParamsEvent());
   }
 
-  void getData(double ax, double ay, double az) async {
+  void getData(
+      double ax, double ay, double az, double gx, double gy, double gz) async {
     ++_n;
-    _block.add(DataBlock(ax: ax, ay: ay, az: az));
+    _block.add(DataBlock(ax: ax, ay: ay, az: az, gx: gx, gy: gy, gz: gz));
 
     if (_n % (_freq / _screenRate) == 0) {
       setState(() {
         _ax = ax;
         _ay = ay;
         _az = az;
+        _gx = gx;
+        _gy = gy;
+        _gz = gz;
       });
     }
 
     if (_isRecording) {
       if (_stage == RecordStages.stgRecording) {
-        await _database.add(DataBlock(ax: ax, ay: ay, az: az));
+        await _database
+            .add(DataBlock(ax: ax, ay: ay, az: az, gx: gx, gy: gy, gz: gz));
       }
 
       ++_recCount;
-      if (_stage == RecordStages.stgWait1){
-        if (_recCount == _timeWait * _freq){
+      if (_stage == RecordStages.stgWait1) {
+        if (_recCount == _timeWait * _freq) {
           _recCount = 0;
           _stage = RecordStages.stgCalibrating;
           _pcBloc.add(CalibrationEvent(func: onEndCalibration));
         }
-      }
-      else
-      if (_stage == RecordStages.stgWait2) {
+      } else if (_stage == RecordStages.stgWait2) {
 //        if (_recCount == _timeWait * _freq) {
         if (_recCount == 1 * _freq) {
           _recCount = 0;
           _stage = RecordStages.stgRecording;
         }
-      }
-      else
-      if (_stage == RecordStages.stgRecording) {
+      } else if (_stage == RecordStages.stgRecording) {
         if (_recCount == _timeRec * _freq) {
           _isRecording = false;
           _recCount = 0;
@@ -152,15 +156,11 @@ class _RecordScreenState extends State<RecordScreen> {
     if (_stage == RecordStages.stgCalibrating ||
         _stage == RecordStages.stgRecording) {
       return '${num.parse((_recCount / _freq).toStringAsFixed(1))} сек';
-    }
-    else
-    if (_stage == RecordStages.stgWait1) {
-      return '${num.parse(
-          (_timeWait - (_recCount / _freq)).toStringAsFixed(1))} сек';
+    } else if (_stage == RecordStages.stgWait1) {
+      return '${num.parse((_timeWait - (_recCount / _freq)).toStringAsFixed(1))} сек';
     }
     if (_stage == RecordStages.stgWait2) {
-      return '${num.parse(
-          (1 - (_recCount / _freq)).toStringAsFixed(1))} сек';
+      return '${num.parse((1 - (_recCount / _freq)).toStringAsFixed(1))} сек';
     }
     return '';
   }
@@ -168,13 +168,9 @@ class _RecordScreenState extends State<RecordScreen> {
   String getStageComment() {
     if (_stage == RecordStages.stgWait1) {
       return 'До калибровки';
-    }
-    else
-    if (_stage == RecordStages.stgCalibrating) {
+    } else if (_stage == RecordStages.stgCalibrating) {
       return 'Калибровка';
-    }
-    else
-    if (_stage == RecordStages.stgWait2) {
+    } else if (_stage == RecordStages.stgWait2) {
       return 'До записи';
     }
     if (_stage == RecordStages.stgRecording) {
@@ -206,35 +202,75 @@ class _RecordScreenState extends State<RecordScreen> {
                   children: <Widget>[
                     Column(children: [
                       Row(children: [
-                        Text('A(x) : ',
-                            style: Theme.of(context).textTheme.headlineMedium),
+                        Text(
+                          'A(x):',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
                         SizedBox(
-                          width: 200,
-                          child: Text('${num.parse(_ax.toStringAsFixed(4))}',
-                              style:
-                                  Theme.of(context).textTheme.headlineMedium),
+                          width: 120,
+                          child: Text(
+                            '${num.parse(_ax.toStringAsFixed(4))}',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ),
+                        Text(
+                          'G(x):',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            '${num.parse(_gx.toStringAsFixed(4))}',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                         ),
                       ]),
                       Row(children: [
-                        Text('A(y) : ',
-                            style: Theme.of(context).textTheme.headlineMedium),
+                        Text(
+                          'A(y):',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
                         SizedBox(
-                          width: 200,
-                          child: Text('${num.parse(_ay.toStringAsFixed(4))}',
-                              //'$_ay',
-                              style:
-                                  Theme.of(context).textTheme.headlineMedium),
+                          width: 120,
+                          child: Text(
+                            '${num.parse(_ay.toStringAsFixed(4))}',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ),
+                        Text(
+                          'G(y):',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            '${num.parse(_gy.toStringAsFixed(4))}',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                         ),
                       ]),
                       Row(children: [
-                        Text('A(z) : ',
-                            style: Theme.of(context).textTheme.headlineMedium),
+                        Text(
+                          'A(z):',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
                         SizedBox(
-                          width: 200,
-                          child: Text('${num.parse(_az.toStringAsFixed(4))}',
-                              //'$_az',
-                              style:
-                                  Theme.of(context).textTheme.headlineMedium),
+                          width: 120,
+                          child: Text(
+                            '${num.parse(_az.toStringAsFixed(4))}',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
+                        ),
+                        Text(
+                          'G(z):',
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            '${num.parse(_gz.toStringAsFixed(4))}',
+                            style: Theme.of(context).textTheme.headlineMedium,
+                          ),
                         ),
                       ]),
                       const SizedBox(
@@ -277,25 +313,27 @@ class _RecordScreenState extends State<RecordScreen> {
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          if (!_isRecording) FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).pushNamed('/settings');
-            },
-            heroTag: 'Settings',
-            tooltip: 'Настройки',
-            child: const Icon(Icons.settings),
-          ),
+          if (!_isRecording)
+            FloatingActionButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/settings');
+              },
+              heroTag: 'Settings',
+              tooltip: 'Настройки',
+              child: const Icon(Icons.settings),
+            ),
           const SizedBox(
             width: 60,
           ),
-          if (!_isRecording) FloatingActionButton(
-            onPressed: () {
-              _pcBloc.add(CalibrationEvent(func: onEndCalibration));
-            },
-            heroTag: 'Calibrate',
-            tooltip: 'Калибровка',
-            child: const Icon(Icons.center_focus_strong),
-          ),
+          if (!_isRecording)
+            FloatingActionButton(
+              onPressed: () {
+                _pcBloc.add(CalibrationEvent(func: onEndCalibration));
+              },
+              heroTag: 'Calibrate',
+              tooltip: 'Калибровка',
+              child: const Icon(Icons.center_focus_strong),
+            ),
           const SizedBox(
             width: 40,
           ),
