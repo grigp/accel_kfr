@@ -8,6 +8,7 @@ import 'package:process_control/features/result_screen/bloc/result_bloc.dart';
 import 'package:process_control/features/result_screen/painters/graph.dart';
 import 'package:process_control/features/result_screen/painters/histogram.dart';
 import 'package:process_control/repositories/process_params.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../repositories/database/abstract_database_repository.dart';
 
@@ -53,23 +54,32 @@ class _ResultScreenState extends State<ResultScreen> {
                       height: 150,
                       width: double.infinity,
                       child: CustomPaint(
-                        painter: Histogram(data:kfr.diagram(), max: 100),
+                        painter: Histogram(data: kfr.diagram(), max: 100),
                       ),
                     ),
                     const SizedBox(height: 10),
                     Expanded(
-                        child: Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: SizedBox(
                               height: double.infinity,
                               child: CustomPaint(
                                 painter: Graph(state.data, state.params.freq),
-                              )),
-                        )
-                      ],
-                    ))
-                  ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    FloatingActionButton(
+                      onPressed: () async {
+                        Share.share(dataToString(state.data));
+                      },
+                      heroTag: 'Share',
+                      tooltip: 'Поделиться',
+                      child: const Icon(Icons.share),
+                    ),                  ],
                 ),
               ),
             );
@@ -80,5 +90,13 @@ class _ResultScreenState extends State<ResultScreen> {
         },
       ),
     );
+  }
+
+  String dataToString(List<DataBlock> data){
+    String retval = '';
+    for (int i = 0; i < data.length; ++i){
+      retval = '$retval${data[i].ax}\t${data[i].ay}\t${data[i].az}\n';
+  }
+    return retval;
   }
 }
