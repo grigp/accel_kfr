@@ -33,6 +33,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   ///< cdmHorizontal - X и Y (горизонтальное расположение устройства)
   CalculateDirectionMode _cdm = CalculateDirectionMode.cdm3D;
 
+  ///< Разделитель целой и дробной частей числа
+  DecimalSeparator _ds = DecimalSeparator.dsComma;
+
   void getValues() async {
     const storage = FlutterSecureStorage();
     String? sdk = await storage.read(key: 'diaps_koef');
@@ -55,6 +58,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (stcdm != null) {
       _cdm = CalculateDirectionMode.values[int.tryParse(stcdm)!];
     }
+    String? stds = await storage.read(key: 'decimal_separator');
+    if (stds != null) {
+      _ds = DecimalSeparator.values[int.tryParse(stds)!];
+    }
+
     String? stf = await storage.read(key: 'filtration');
     if (stf != null) {
       if (stf == "1") {
@@ -85,6 +93,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await storage.write(key: 'time_record', value: s);
     s = _cdm.index.toString();
     await storage.write(key: 'calculate_direction_mode', value: s);
+    s = _ds.index.toString();
+    await storage.write(key: 'decimal_separator', value: s);
     if (_isFilter) {
       s = '1';
     } else {
@@ -322,6 +332,63 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ],
+              ),
+              const Text(
+                'Разделитель частей числа',
+                style: TextStyle(fontSize: 14),
+              ),
+              // Column(
+              //   children: <Widget>[
+              //     ListTile(
+              //       title: const Text(
+              //         'Точка',
+              //         style: TextStyle(fontSize: 14),
+              //       ),
+              //       leading: Radio<DecimalSeparator>(
+              //         value: DecimalSeparator.dsPoint,
+              //         groupValue: _ds,
+              //         onChanged: (DecimalSeparator? value) {
+              //           setState(() {
+              //             _ds = value!;
+              //           });
+              //         },
+              //       ),
+              //     ),
+              //     ListTile(
+              //       title: const Text(
+              //         'Запятая',
+              //         style: TextStyle(fontSize: 14),
+              //       ),
+              //       leading: Radio<DecimalSeparator>(
+              //         value: DecimalSeparator.dsComma,
+              //         groupValue: _ds,
+              //         onChanged: (DecimalSeparator? value) {
+              //           setState(() {
+              //             _ds = value!;
+              //           });
+              //         },
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              SegmentedButton<DecimalSeparator>(
+                segments: const <ButtonSegment<DecimalSeparator>>[
+                  ButtonSegment<DecimalSeparator>(
+                    value: DecimalSeparator.dsPoint,
+                    label: Text('Точка'),
+                  ),
+                  ButtonSegment<DecimalSeparator>(
+                    value: DecimalSeparator.dsComma,
+                    label: Text('Запятая'),
+                  ),
+                ],
+                selected: <DecimalSeparator>{_ds},
+                onSelectionChanged: (Set<DecimalSeparator> newSelection) {
+                  setState(() {
+                    _ds = newSelection.first;
+//                    widget.onAmModeChanged(widget.amMode);
+                  });
+                },
               ),
               const Expanded(child: SizedBox(height: double.infinity)),
               Row(

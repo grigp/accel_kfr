@@ -204,72 +204,72 @@ class _RecordScreenState extends State<RecordScreen> {
                       Row(children: [
                         Text(
                           'A(x):',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         SizedBox(
                           width: 120,
                           child: Text(
                             '${num.parse(_ax.toStringAsFixed(4))}',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                         Text(
                           'G(x):',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         SizedBox(
                           width: 120,
                           child: Text(
                             '${num.parse(_gx.toStringAsFixed(4))}',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                       ]),
                       Row(children: [
                         Text(
                           'A(y):',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         SizedBox(
                           width: 120,
                           child: Text(
                             '${num.parse(_ay.toStringAsFixed(4))}',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                         Text(
                           'G(y):',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         SizedBox(
                           width: 120,
                           child: Text(
                             '${num.parse(_gy.toStringAsFixed(4))}',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                       ]),
                       Row(children: [
                         Text(
                           'A(z):',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         SizedBox(
                           width: 120,
                           child: Text(
                             '${num.parse(_az.toStringAsFixed(4))}',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                         Text(
                           'G(z):',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                          style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         SizedBox(
                           width: 120,
                           child: Text(
                             '${num.parse(_gz.toStringAsFixed(4))}',
-                            style: Theme.of(context).textTheme.headlineMedium,
+                            style: Theme.of(context).textTheme.headlineSmall,
                           ),
                         ),
                       ]),
