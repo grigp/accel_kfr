@@ -101,7 +101,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       s = '0';
     }
     await storage.write(key: 'filtration', value: s);
-    Navigator.of(context).pushNamed('/');
   }
 
   @override
@@ -396,13 +395,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ElevatedButton(
                     onPressed: () {
                       saveValues();
+                      Navigator.of(context).popUntil(ModalRoute.withName('/'));
                     },
                     child: Text('Сохранить',
                         style: Theme.of(context).textTheme.headlineSmall),
                   ),
                   ElevatedButton(
                       onPressed: () {
-                        Navigator.of(context).pushNamed('/');
+                        Navigator.of(context).popUntil(ModalRoute.withName('/'));
                       },
                       child: Text('Отмена',
                           style: Theme.of(context).textTheme.headlineSmall))
