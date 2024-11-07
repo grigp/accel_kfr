@@ -56,6 +56,8 @@ class _RecordScreenState extends State<RecordScreen> {
     super.initState();
   }
 
+  
+
   void getSettings() async {
     const storage = FlutterSecureStorage();
     String? stw = await storage.read(key: 'time_wait');

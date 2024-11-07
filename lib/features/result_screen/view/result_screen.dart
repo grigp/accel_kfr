@@ -149,7 +149,7 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   String dataToString(List<DataBlock> data) {
-    String retval = '';
+    String retval = 'AX\tAY\tAZ\tGX\tGY\tGZ\n';
 
     for (int i = 0; i < data.length; ++i) {
       retval =
