@@ -6,5 +6,5 @@ import 'package:process_control/features/settings_screen/view/settings_screen.da
 final routes = {
   '/' : (context) => const RecordScreen(title: 'Оценка функции равновесия'),
   '/result' : (context) => const ResultScreen(title: 'Результаты'),
-  '/settings' : (context) => const SettingsScreen(title: 'Настройки'),
+//  '/settings' : (context) => const SettingsScreen(title: 'Настройки'),
 };

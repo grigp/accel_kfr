@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:process_control/features/record_screen/bloc/recording_bloc.dart';
 import 'package:process_control/features/record_screen/painters/any_picture_painter.dart';
 import 'package:process_control/features/record_screen/painters/oscilloscope.dart';
+import 'package:process_control/features/settings_screen/view/settings_screen.dart';
 import 'package:process_control/repositories/database/abstract_database_repository.dart';
 import 'package:process_control/repositories/source/abstract_source_repository.dart';
 import 'package:process_control/repositories/process_params.dart';
@@ -318,7 +319,15 @@ class _RecordScreenState extends State<RecordScreen> {
           if (!_isRecording)
             FloatingActionButton(
               onPressed: () {
-                Navigator.of(context).pushNamed('/settings');
+//                Navigator.of(context).pushNamed('/settings');
+                MaterialPageRoute route = MaterialPageRoute(
+                  builder: (context) => SettingsScreen(
+                    title: 'Мои стимуляторы',
+                    onAccept: _onSettingsAccept,
+                  ),
+                  settings: const RouteSettings(name: '/select'),
+                );
+                Navigator.of(context).push(route);
               },
               heroTag: 'Settings',
               tooltip: 'Настройки',
@@ -348,5 +357,9 @@ class _RecordScreenState extends State<RecordScreen> {
         ],
       ),
     );
+  }
+
+  void _onSettingsAccept()  {
+    getSettings();
   }
 }

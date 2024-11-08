@@ -6,9 +6,14 @@ import 'package:process_control/calculators/kfr_calculator.dart';
 import '../../../calculators/calculate_defines.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key, required this.title});
+  const SettingsScreen({
+    super.key,
+    required this.title,
+    required this.onAccept
+  });
 
   final String title;
+  final Function onAccept;
 
   @override
   State<StatefulWidget> createState() => _SettingsScreenState();
@@ -80,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  void saveValues() async {
+  Future saveValues() async {
     const storage = FlutterSecureStorage();
     var s = _diapsKoef.toString();
     await storage.write(key: 'diaps_koef', value: s);
@@ -393,8 +398,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      saveValues();
+                    onPressed: () async {
+                      await saveValues();
+                      await widget.onAccept();
                       Navigator.of(context).popUntil(ModalRoute.withName('/'));
                     },
                     child: Text('Сохранить',
