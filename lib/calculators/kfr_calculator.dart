@@ -1,5 +1,6 @@
 
 import 'dart:math';
+import 'package:vector_math/vector_math.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:process_control/calculators/abstract_calculator.dart';
@@ -45,24 +46,27 @@ class KfrCalculator extends AbstractCalculator{
     for (int i = 0; i < n; ++i){
       var val = dataValue(i);
       double vct = 0;
+      double ax = val.ax * cos(radians(val.gx));
+      double ay = val.ay * cos(radians(val.gy));
+      double az = val.az * cos(radians(val.gz));
       if (_cdm == CalculateDirectionMode.cdm3D) {
-        vct = sqrt(pow(val.ax, 2) + pow(val.ay, 2) + pow(val.az, 2));
+        vct = sqrt(pow(ax, 2) + pow(ay, 2) + pow(az, 2));
       } else
       if (_cdm == CalculateDirectionMode.cdmVertical) {
-        vct = sqrt(pow(val.ax, 2) + pow(val.az, 2));
+        vct = sqrt(pow(ax, 2) + pow(az, 2));
       } else
       if (_cdm == CalculateDirectionMode.cdmHorizontal) {
-        vct = sqrt(pow(val.ax, 2) + pow(val.ay, 2));
+        vct = sqrt(pow(ax, 2) + pow(ay, 2));
       }
       if (vct < min) {min = vct;}
       if (vct > max) {max = vct;}
 
-      if (val.ax.abs() < minX) {minX = val.ax.abs();}
-      if (val.ax.abs() > maxX) {maxX = val.ax.abs();}
-      if (val.ay.abs() < minY) {minY = val.ay.abs();}
-      if (val.ay.abs() > maxY) {maxY = val.ay.abs();}
-      if (val.az.abs() < minZ) {minZ = val.az.abs();}
-      if (val.az.abs() > maxZ) {maxZ = val.az.abs();}
+      if (ax.abs() < minX) {minX = ax.abs();}
+      if (ax.abs() > maxX) {maxX = ax.abs();}
+      if (ay.abs() < minY) {minY = ay.abs();}
+      if (ay.abs() > maxY) {maxY = ay.abs();}
+      if (az.abs() < minZ) {minZ = az.abs();}
+      if (az.abs() > maxZ) {maxZ = az.abs();}
 
       for (int j = 0; j < 20; ++j) {
 //        if (vct >= sqrt(j) * 0.043599 && vct < sqrt(j+1) * 0.043599){
