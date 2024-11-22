@@ -81,23 +81,23 @@ class AccelDriver extends AbstractSourceRepository {
           gx: _gx, gy: _gy, gz: _gz));
         if (_dataCalibrate.length >= _timeCalibration * _freq){
           _isCalibratng = false;
-          for (int i = 0; i < _dataCalibrate.length; ++i){
-            _midAX += _dataCalibrate[i].ax;
-            _midAY += _dataCalibrate[i].ay;
-            _midAZ += _dataCalibrate[i].az;
-            _midGX += _dataCalibrate[i].gx;
-            _midGY += _dataCalibrate[i].gy;
-            _midGZ += _dataCalibrate[i].gz;
-          }
-          _midAX /= _dataCalibrate.length;
-          _midAY /= _dataCalibrate.length;
-          _midAZ /= _dataCalibrate.length;
-          _midGX /= _dataCalibrate.length;
-          _midGY /= _dataCalibrate.length;
-          _midGZ /= _dataCalibrate.length;
-          _gsx = 0;
-          _gsy = 0;
-          _gsz = 0;
+          // for (int i = 0; i < _dataCalibrate.length; ++i){
+          //   _midAX += _dataCalibrate[i].ax;
+          //   _midAY += _dataCalibrate[i].ay;
+          //   _midAZ += _dataCalibrate[i].az;
+          //   _midGX += _dataCalibrate[i].gx;
+          //   _midGY += _dataCalibrate[i].gy;
+          //   _midGZ += _dataCalibrate[i].gz;
+          // }
+          // _midAX /= _dataCalibrate.length;
+          // _midAY /= _dataCalibrate.length;
+          // _midAZ /= _dataCalibrate.length;
+          // _midGX /= _dataCalibrate.length;
+          // _midGY /= _dataCalibrate.length;
+          // _midGZ /= _dataCalibrate.length;
+          // _gsx = 0;
+          // _gsy = 0;
+          // _gsz = 0;
 
           _dataCalibrate.clear();
           _endCalibration();

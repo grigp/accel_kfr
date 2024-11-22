@@ -55,7 +55,8 @@ class _ResultScreenState extends State<ResultScreen> {
           bloc: _database,
           builder: (context, state) {
             if (state is DataLoaded) {
-              var kfr = KfrCalculator(state.data);
+              List<DataBlock> data = _zeroing(state.data);
+              var kfr = KfrCalculator(data);
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(20),
@@ -79,7 +80,7 @@ class _ResultScreenState extends State<ResultScreen> {
                               child: SizedBox(
                                 height: double.infinity,
                                 child: CustomPaint(
-                                  painter: Graph(state.data, state.params.freq),
+                                  painter: Graph(data, state.params.freq),
                                 ),
                               ),
                             )
@@ -96,12 +97,12 @@ class _ResultScreenState extends State<ResultScreen> {
                           if (await f.exists()) {
                             f.delete();
                           }
-                          await f.writeAsString(dataToString(state.data));
+                          await f.writeAsString(dataToString(data));
                           Share.shareXFiles(
                               [XFile('${dir?.path}/exchange.log')],
                               text: 'Сигналы акселерограммы по x, y и z');
 
-                          //Share.share(dataToString(state.data));
+                          //Share.share(dataToString(data));
                         },
                         heroTag: 'Share',
                         tooltip: 'Поделиться',
@@ -119,6 +120,42 @@ class _ResultScreenState extends State<ResultScreen> {
         ),
       ),
     );
+  }
+
+  List<DataBlock> _zeroing(List<DataBlock> data) {
+    double midAX = 0;
+    double midAY = 0;
+    double midAZ = 0;
+    double midGX = 0;
+    double midGY = 0;
+    double midGZ = 0;
+    for (int i = 0; i < data.length; ++i) {
+      midAX += data[i].ax;
+      midAY += data[i].ay;
+      midAZ += data[i].az;
+      midGX += data[i].gx;
+      midGY += data[i].gy;
+      midGZ += data[i].gz;
+    }
+    midAX /= data.length;
+    midAY /= data.length;
+    midAZ /= data.length;
+    midGX /= data.length;
+    midGY /= data.length;
+    midGZ /= data.length;
+
+    List<DataBlock> retval = [];
+    for (int i = 0; i < data.length; ++i) {
+      DataBlock b = DataBlock(
+          ax: data[i].ax - midAX,
+          ay: data[i].ay - midAY,
+          az: data[i].az - midAZ,
+          gx: data[i].gx - midGX,
+          gy: data[i].gy - midGY,
+          gz: data[i].gz - midGZ);
+      retval.add(b);
+    }
+    return retval;
   }
 
   void getValues() async {
