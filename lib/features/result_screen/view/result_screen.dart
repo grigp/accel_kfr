@@ -29,10 +29,12 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen> {
   final _database = ResultBloc(GetIt.I<AbstractDatabaseRepository>());
   DecimalSeparator _ds = DecimalSeparator.dsComma;
+  bool _isZeroing = true;
 
   @override
   void initState() {
     _database.add(GetListData());
+    getSettings();
     getValues();
     super.initState();
   }
@@ -123,39 +125,43 @@ class _ResultScreenState extends State<ResultScreen> {
   }
 
   List<DataBlock> _zeroing(List<DataBlock> data) {
-    double midAX = 0;
-    double midAY = 0;
-    double midAZ = 0;
-    double midGX = 0;
-    double midGY = 0;
-    double midGZ = 0;
-    for (int i = 0; i < data.length; ++i) {
-      midAX += data[i].ax;
-      midAY += data[i].ay;
-      midAZ += data[i].az;
-      midGX += data[i].gx;
-      midGY += data[i].gy;
-      midGZ += data[i].gz;
-    }
-    midAX /= data.length;
-    midAY /= data.length;
-    midAZ /= data.length;
-    midGX /= data.length;
-    midGY /= data.length;
-    midGZ /= data.length;
+    if (_isZeroing){
+      double midAX = 0;
+      double midAY = 0;
+      double midAZ = 0;
+      double midGX = 0;
+      double midGY = 0;
+      double midGZ = 0;
+      for (int i = 0; i < data.length; ++i) {
+        midAX += data[i].ax;
+        midAY += data[i].ay;
+        midAZ += data[i].az;
+        midGX += data[i].gx;
+        midGY += data[i].gy;
+        midGZ += data[i].gz;
+      }
+      midAX /= data.length;
+      midAY /= data.length;
+      midAZ /= data.length;
+      midGX /= data.length;
+      midGY /= data.length;
+      midGZ /= data.length;
 
-    List<DataBlock> retval = [];
-    for (int i = 0; i < data.length; ++i) {
-      DataBlock b = DataBlock(
-          ax: data[i].ax - midAX,
-          ay: data[i].ay - midAY,
-          az: data[i].az - midAZ,
-          gx: data[i].gx - midGX,
-          gy: data[i].gy - midGY,
-          gz: data[i].gz - midGZ);
-      retval.add(b);
+      List<DataBlock> retval = [];
+      for (int i = 0; i < data.length; ++i) {
+        DataBlock b = DataBlock(
+            ax: data[i].ax - midAX,
+            ay: data[i].ay - midAY,
+            az: data[i].az - midAZ,
+            gx: data[i].gx - midGX,
+            gy: data[i].gy - midGY,
+            gz: data[i].gz - midGZ);
+        retval.add(b);
+      }
+      return retval;
+    } else {
+      return data;
     }
-    return retval;
   }
 
   void getValues() async {
@@ -194,5 +200,18 @@ class _ResultScreenState extends State<ResultScreen> {
       //     print('--------------------$i : $_ds ---- $retval');
     }
     return retval;
+  }
+
+  Future<void> getSettings() async {
+    const storage =  FlutterSecureStorage();
+
+    String? stf = await storage.read(key: 'zeroing');
+    if (stf != null) {
+      if (stf == "1") {
+        _isZeroing = true;
+      } else {
+        _isZeroing = false;
+      }
+    }
   }
 }

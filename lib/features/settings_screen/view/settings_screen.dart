@@ -31,6 +31,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _timeCalibr = 1;
   int _timeRec = 20;
   bool _isFilter = true;
+  bool _isZeroing = true;
 
   ///< Режим расчета и ориентации устройства
   ///< cdm3D - трехмерный расчет (свободное расположение устройства),
@@ -76,6 +77,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _isFilter = false;
       }
     }
+
+    String? stz = await storage.read(key: 'zeroing');
+    if (stz != null) {
+      if (stz == "1") {
+        _isZeroing = true;
+      } else {
+        _isZeroing = false;
+      }
+    }
+
     _textDiapsKoef = TextEditingController(text: _diapsKoef.toString());
     _textTimeWait = TextEditingController(text: _timeWait.toString());
     _textTimeCalibr = TextEditingController(text: _timeCalibr.toString());
@@ -106,6 +117,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       s = '0';
     }
     await storage.write(key: 'filtration', value: s);
+    if (_isZeroing) {
+      s = '1';
+    } else {
+      s = '0';
+    }
+    await storage.write(key: 'zeroing', value: s);
   }
 
   @override
@@ -268,6 +285,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onChanged: (bool value){
                         setState(() {
                           _isFilter = value;
+                        });
+                      },
+                    ),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text(
+                    'Центровка',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  const Spacer(),
+                  if (_isReady)
+                    Switch(
+                      value: _isZeroing,
+                      onChanged: (bool value){
+                        setState(() {
+                          _isZeroing = value;
                         });
                       },
                     ),
