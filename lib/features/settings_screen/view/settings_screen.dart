@@ -26,7 +26,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late TextEditingController _textTimeRec;
   bool _isReady = false;
 
-  double _diapsKoef = 0.043599; //active = 0.247167
+  double _diapsKoef = 0.025;//0.043599; //active = 0.247167
   int _timeWait = 4;
   int _timeCalibr = 1;
   int _timeRec = 20;

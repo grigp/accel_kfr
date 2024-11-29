@@ -6,7 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:process_control/calculators/abstract_calculator.dart';
 import 'package:process_control/calculators/calculate_defines.dart';
 
-double _diapsKoef =  0.043599; //0.247167;  //
+double _diapsKoef =  0.025;//0.043599; //0.247167;  //
+int _ndiaps = 50;   /// Кол-во диапазонов
 CalculateDirectionMode _cdm = CalculateDirectionMode.cdm3D;
 
 class KfrCalculator extends AbstractCalculator{
@@ -29,7 +30,7 @@ class KfrCalculator extends AbstractCalculator{
   Future<void> calculate() async {
     getValues();
 
-    for (int j = 0; j < 20; ++j) {
+    for (int j = 0; j < _ndiaps; ++j) {
       _diag.add(0);
     }
 
@@ -46,6 +47,9 @@ class KfrCalculator extends AbstractCalculator{
     for (int i = 0; i < n; ++i){
       var val = dataValue(i);
       double vct = 0;
+      // double ax = val.ax + 9.8 * sin(radians(val.gy));  Поисследовать поворот
+      // double ay = val.ay + 9.8 * sin(radians(val.gx));
+      // double az = val.az + 9.8 * sin(radians(val.gz));
       double ax = val.ax * cos(radians(val.gx));
       double ay = val.ay * cos(radians(val.gy));
       double az = val.az * cos(radians(val.gz));
@@ -68,8 +72,7 @@ class KfrCalculator extends AbstractCalculator{
       if (az.abs() < minZ) {minZ = az.abs();}
       if (az.abs() > maxZ) {maxZ = az.abs();}
 
-      for (int j = 0; j < 20; ++j) {
-//        if (vct >= sqrt(j) * 0.043599 && vct < sqrt(j+1) * 0.043599){
+      for (int j = 0; j < _ndiaps; ++j) {
         if (vct >= sqrt(j) * _diapsKoef && vct < sqrt(j+1) * _diapsKoef){
           ++_diag[j];
         }
@@ -79,7 +82,7 @@ class KfrCalculator extends AbstractCalculator{
     print('-------------------------');
     print('min = $min   max = $max');
     print('minX = $minX   maxX = $maxX   |   minY = $minY   maxY = $maxY  |  minZ = $minZ   maxZ = $maxZ');
-    for (int j = 0; j < 20; ++j) {
+    for (int j = 0; j < _ndiaps; ++j) {
       var v1 = sqrt(j) * _diapsKoef;
       var v2 = sqrt(j + 1) * _diapsKoef;
       print('-- j = $j  v1 = $v1   v2 = $v2');
@@ -88,18 +91,18 @@ class KfrCalculator extends AbstractCalculator{
 
 
     double s = 0;
-    for (int j = 1; j < 20; ++j) {
+    for (int j = 1; j < _ndiaps; ++j) {
       _diag[j] += _diag[j-1];
       s += _diag[j];
     }
     double summ = 0;
-    for (int j = 0; j < 20; ++j) {
+    for (int j = 0; j < _ndiaps; ++j) {
       _diag[j] = _diag[j] / n * 100;
       print('-- j = $j   val = ${_diag[j]}');
       summ += _diag[j];
     }
 
-    double kfr = summ / 20;
+    double kfr = summ / _ndiaps;
 
     print('-------------------------');
     print('summ = $s   n = $n');
@@ -120,7 +123,7 @@ class KfrCalculator extends AbstractCalculator{
 
   List<double> diagram(){
     List<double> retval = [];
-    for(int i = 0; i < 20; ++i) {
+    for(int i = 0; i < _ndiaps; ++i) {
       retval.add(_diag[i]);
     }
     return retval;
