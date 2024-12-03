@@ -67,6 +67,12 @@ class _ResultScreenState extends State<ResultScreen> {
                       Text(
                           'КФР = ${num.parse(kfr.factor(0).value.toStringAsFixed(0))} %',
                           style: Theme.of(context).textTheme.headlineMedium),
+                      Text(
+                          'КФР V = ${num.parse(kfr.factor(1).value.toStringAsFixed(0))} %',
+                          style: Theme.of(context).textTheme.headlineMedium),
+                      Text(
+                          'КФР 3D = ${num.parse(kfr.factor(2).value.toStringAsFixed(0))} %',
+                          style: Theme.of(context).textTheme.headlineMedium),
                       SizedBox(
                         height: 150,
                         width: double.infinity,
